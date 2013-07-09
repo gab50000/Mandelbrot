@@ -37,17 +37,31 @@ def draw_imag(surface, complmat, (xmax, ymax)):
 		for y in xrange(ymax):
 			pa[x][y]=imagcolor(complmat[x,y])
 	del pa
+	
+def calc_converge(surface, limitmat, complmat, cvalmat, maxiter, maxdev):
+	startvalmat=np.array(complmat)
+	for i in xrange(maxiter):
+		complmat=complmat*complmat+cvalmat
+		limitmat+=(complmat-startvalmat)<maxdev
 
+def draw_iter(surface, limitmat, maxlimit, (xmax, ymax)):
+	pa=pygame.PixelArray(surface)
+	for x in xrange(xmax):
+		for y in xrange(ymax):
+			pa[x][y]=pygame.Color(*[limitmat[x,y]/maxlimit*255]*3)
+	
 pygame.init()
-size=(600,800)
+size=(1024,768)
 fps=pygame.time.Clock()
 windowSurface=pygame.display.set_mode(size)
 
 clipping=(-2-2j, 2+2j)
 complmat=np.zeros(size, dtype=complex)
-cvalmat=np.array([[complex(clipping[0].real+i*(clipping[1].real-clipping[0].real)/size[0], clipping[0].imag+j*(clipping[1].imag-clipping[0].imag)/size[1]) for i in xrange(size[1])] for j in xrange(size[0])])
+cvalmat=np.array([[complex(clipping[0].real+j*(clipping[1].real-clipping[0].real)/size[0], clipping[0].imag+i*(clipping[1].imag-clipping[0].imag)/size[1]) for i in xrange(size[1])] for j in xrange(size[0])])
+limitmat=np.zeros(size, dtype=int)
 
-for i in xrange(255):
+for i in xrange(200):
+	print i
 	complmat=complmat*complmat+cvalmat
 
 try:
