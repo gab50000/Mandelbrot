@@ -88,7 +88,7 @@ def reclip(clipping, rect, size):
 	right=(clipping[1].real-clipping[0].real)*float(rect.right)/size[0]+clipping[0].real
 	up=(clipping[1].imag-clipping[0].imag)*float(rect.bottom)/size[1]+clipping[0].imag
 	down=(clipping[1].imag-clipping[0].imag)*float(rect.top)/size[1]+clipping[0].imag
-	newclip=(complex(left,down), complex(right,up))
+	newclip=(complex(min(left,right),max(up,down)), complex(max(left,right),min(up,down)))
 	return newclip
 	
 start=time.time()
