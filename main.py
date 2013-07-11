@@ -4,7 +4,8 @@ import pygame
 import pygame.locals as pl
 import cmath, math
 import numpy as np
-
+import time
+import pdb
 
 #~ ColorMap=
 ColourPalette = [(241, 233, 191), (248, 201, 95), (255, 170, 0), (204, 108, 0), (153, 87, 0), (106, 52, 3), (66, 30, 15), (25, 7, 26), (25, 7, 26), (9, 1, 47), (4, 4, 73), (0, 7, 100), (12, 44, 138), (24, 82, 177), (57, 125, 209), (134, 181, 229), (211, 236, 248)]
@@ -19,8 +20,10 @@ class imageSection:
 		
 	def resize(self, (x,y)):
 		self.rect.width=x-self.anchor[0]
-		self.rect.height=y-self.anchor[1]
-		
+		#~ self.rect.height=y-self.anchor[1]
+		self.rect.height=int(float(self.rect.width)*self.surface.get_size()[1]/self.surface.get_size()[0])
+		if (y < self.anchor[1] and x > self.anchor[0]) or (y > self.anchor[1] and x < self.anchor[0]):
+			self.rect.height*=-1
 	def draw(self):
 		pygame.draw.rect(self.surface, self.color, self.rect, 1)
 
@@ -61,31 +64,46 @@ def draw_iter(surface, limitmat, maxlimit, (xmax, ymax)):
 	pa=pygame.PixelArray(surface)
 	for x in xrange(xmax):
 		for y in xrange(ymax):
-			#~ pa[x][y]=pygame.Color(255-int(float(limitmat[x,y])/maxlimit*255),0, int(float(limitmat[x,y])/maxlimit*255), int(255./limitmat[x,y]))
+			#~ try:
+				#~ pa[x][y]=pygame.Color(int(float(limitmat[x,y])/maxlimit*255),0, int(float(limitmat[x,y])/maxlimit*255))
+			#~ except ValueError:
+				#~ pdb.set_trace()
 			pa[x][y]=pygame.Color(*ColourPalette[limitmat[x,y]%17])
 	del pa
 	
 def calc_converge(surface, limitmat, complmat, cvalmat, maxiter, maxdev):
 	startvalmat=np.array(complmat)
+	limitmat.fill(0)
+	complmat.fill(0)
 	for i in xrange(maxiter):
 		complmat=complmat*complmat+cvalmat
 		limitmat+=abs(complmat-startvalmat)<maxdev
 
+def calc_clipping(surface, complmat, limitmat, clipping):
+	cvalmat=np.array([[complex(clipping[0].real+j*(clipping[1].real-clipping[0].real)/size[0], clipping[0].imag+i*(clipping[1].imag-clipping[0].imag)/size[1]) for i in xrange(size[1])] for j in xrange(size[0])])
+	calc_converge(surface, limitmat, complmat, cvalmat, 500, 2)
 	
+def reclip(clipping, rect, size):
+	left=(clipping[1].real-clipping[0].real)*float(rect.left)/size[0]+clipping[0].real
+	right=(clipping[1].real-clipping[0].real)*float(rect.right)/size[0]+clipping[0].real
+	up=(clipping[1].imag-clipping[0].imag)*float(rect.bottom)/size[1]+clipping[0].imag
+	down=(clipping[1].imag-clipping[0].imag)*float(rect.top)/size[1]+clipping[0].imag
+	newclip=(complex(left,down), complex(right,up))
+	return newclip
+	
+start=time.time()
 pygame.init()
-size=(800,600)
+size=(400,300)
 maxiter=200
 fps=pygame.time.Clock()
 windowSurface=pygame.display.set_mode(size)
 mandelSurface=pygame.Surface(size)
-rectSurface=pygame.Surface(size)
 
-clipping=(-2.5, 1.5)
+clipping=(-2.5+1.5j, 1.5-1.5j)
 complmat=np.zeros(size, dtype=complex)
-cvalmat=np.array([[complex(clipping[0].real+j*(clipping[1]-clipping[0])/size[0], clipping[0]+i*(clipping[1]-clipping[0])/size[1]) for i in xrange(size[1])] for j in xrange(size[0])])
 limitmat=np.zeros(size, dtype=int)
-
-calc_converge(mandelSurface, limitmat, complmat, cvalmat, 500, 1000)
+cvalmat=np.zeros(size, dtype=complex)
+calc_clipping(mandelSurface, complmat, limitmat, clipping)
 draw_iter(mandelSurface, limitmat, maxiter, size)
 ausschnitt=None
 
@@ -96,13 +114,21 @@ try:
 			if event.type==pl.MOUSEBUTTONUP:
 				if not ausschnitt:
 					ausschnitt=imageSection(windowSurface, event.pos)
+				else:
+					ausschnitt.resize(event.pos)
+					#hier clipping resize
+					clipping=reclip(clipping, ausschnitt.rect, size)
+					ausschnitt=None
+					calc_clipping(mandelSurface, complmat, limitmat, clipping)
+					draw_iter(mandelSurface, limitmat, maxiter, size)
 			elif event.type ==pl.MOUSEMOTION:
 				if ausschnitt:
 					ausschnitt.resize(event.pos)
+				
 		if ausschnitt:
 			windowSurface.blit(mandelSurface, (0,0))
 			ausschnitt.draw()
 		pygame.display.update()
-		fps.tick(30)
+		fps.tick(20)
 except RuntimeError:
 	pygame.quit()
