@@ -98,45 +98,50 @@ def reclip(clipping, rect, size):
 	down=(clipping[1].imag-clipping[0].imag)*float(rect.top)/size[1]+clipping[0].imag
 	newclip=(complex(min(left,right),max(up,down)), complex(max(left,right),min(up,down)))
 	return newclip
-	
-start=time.time()
-pygame.init()
-size=(800,600)
-maxiter=500
-fps=pygame.time.Clock()
-windowSurface=pygame.display.set_mode(size)
-mandelSurface=pygame.Surface(size)
 
-clipping=(-2.5+1.5j, 1.5-1.5j)
-complmat=np.zeros(size, dtype=complex)
-limitmat=np.zeros(size, dtype=int)
-cvalmat=np.zeros(size, dtype=complex)
-calc_clipping(mandelSurface, complmat, limitmat, clipping, maxiter)
-draw_iter(mandelSurface, limitmat, maxiter, size)
-ausschnitt=None
+if __name__=="__main__":	
+	parser=argparse.ArgumentParser(description="Mandelbrotmenge")
+	parser.add_argument("-r", "--resolution", type=int, nargs=2, default=(400,300), help="number of bins")
+	parser.add_argument("-i", "--maxiter", type=int, default=300, help="Maximum number of iterations")
+	parser.add_argument("-b", "--boundaries", type=complex, default=(-2.5+1.5j, 1.5-1.5j), nargs=2, help="Image section at start (imaginary number at upper left and at bottom right boundary")
+	args = parser.parse_args()
+	pygame.init()
+	size=args.resolution
+	maxiter=args.maxiter
+	fps=pygame.time.Clock()
+	windowSurface=pygame.display.set_mode(size)
+	mandelSurface=pygame.Surface(size)
 
-try:
-	while 1:
-		windowSurface.blit(mandelSurface, (0,0))
-		for event in pygame.event.get():
-			if event.type==pl.MOUSEBUTTONUP:
-				if not ausschnitt:
-					ausschnitt=imageSection(windowSurface, event.pos)
-				else:
-					ausschnitt.resize(event.pos)
-					#hier clipping resize
-					clipping=reclip(clipping, ausschnitt.rect, size)
-					ausschnitt=None
-					calc_clipping(mandelSurface, complmat, limitmat, clipping, maxiter)
-					draw_iter(mandelSurface, limitmat, maxiter, size)
-			elif event.type ==pl.MOUSEMOTION:
-				if ausschnitt:
-					ausschnitt.resize(event.pos)
-				
-		if ausschnitt:
+	clipping=args.boundaries
+	complmat=np.zeros(size, dtype=complex)
+	limitmat=np.zeros(size, dtype=int)
+	cvalmat=np.zeros(size, dtype=complex)
+	calc_clipping(mandelSurface, complmat, limitmat, clipping, maxiter)
+	draw_iter(mandelSurface, limitmat, maxiter, size)
+	ausschnitt=None
+
+	try:
+		while 1:
 			windowSurface.blit(mandelSurface, (0,0))
-			ausschnitt.draw()
-		pygame.display.update()
-		fps.tick(20)
-except RuntimeError:
-	pygame.quit()
+			for event in pygame.event.get():
+				if event.type==pl.MOUSEBUTTONUP:
+					if not ausschnitt:
+						ausschnitt=imageSection(windowSurface, event.pos)
+					else:
+						ausschnitt.resize(event.pos)
+						#hier clipping resize
+						clipping=reclip(clipping, ausschnitt.rect, size)
+						ausschnitt=None
+						calc_clipping(mandelSurface, complmat, limitmat, clipping, maxiter)
+						draw_iter(mandelSurface, limitmat, maxiter, size)
+				elif event.type ==pl.MOUSEMOTION:
+					if ausschnitt:
+						ausschnitt.resize(event.pos)
+					
+			if ausschnitt:
+				windowSurface.blit(mandelSurface, (0,0))
+				ausschnitt.draw()
+			pygame.display.update()
+			fps.tick(20)
+	except RuntimeError:
+		pygame.quit()
