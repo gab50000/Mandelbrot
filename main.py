@@ -6,6 +6,7 @@ import cmath, math
 import numpy as np
 import time
 import argparse
+import nptest
 
 #~ ColorMap=
 ColourPalette = [(241, 233, 191), (248, 201, 95), (255, 170, 0), (204, 108, 0), (153, 87, 0), (106, 52, 3), (66, 30, 15), (25, 7, 26), (25, 7, 26), (9, 1, 47), (4, 4, 73), (0, 7, 100), (12, 44, 138), (24, 82, 177), (57, 125, 209), (134, 181, 229), (211, 236, 248)]
@@ -79,12 +80,13 @@ def calc_converge(surface, limitmat, complmat, cvalmat, maxiter, maxdev):
 	start=time.time()
 	limitmat.fill(0)
 	complmat.fill(0)
-	i=0
+	#~ i=0
 	#~ while i < maxiter or (not maxiter in limitmat):
-	while i < maxiter:
-		complmat=complmat*complmat+cvalmat
-		limitmat+=abs(complmat)<maxdev
-		i+=1
+	#~ while i < maxiter:
+		#~ complmat=complmat*complmat+cvalmat
+		#~ limitmat+=abs(complmat)<maxdev
+		#~ i+=1
+	nptest.nonlineq(complmat, cvalmat, limitmat, maxdev*maxdev, maxiter)
 	print time.time()-start
 
 def calc_clipping(surface, complmat, limitmat, clipping, maxiter):
