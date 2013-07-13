@@ -4,8 +4,8 @@ cimport cython
 
 @cython.boundscheck(False)
 def nonlineq(np.ndarray[np.complex128_t, ndim=2] zmat, np.ndarray[np.complex128_t, ndim=2] cmat, np.ndarray[np.int64_t, ndim=2] itermat, double limitsquare, int maxiter):
-#~ 	cdef unsigned int i,j
-	cdef Py_ssize_t i,j
+	cdef unsigned int i,j
+#~ 	cdef Py_ssize_t i,j
 	cdef double a
 	for iteration in range(maxiter):
 		for i in range(zmat.shape[0]):
