@@ -3,7 +3,7 @@ cimport numpy as np
 cimport cython
 
 @cython.boundscheck(False)
-def nonlineq(np.ndarray[np.complex128_t, ndim=2] zmat, np.ndarray[np.complex128_t, ndim=2] cmat, np.ndarray[np.int64_t, ndim=2] itermat, double limitsquare, int maxiter):
+def nonlineq(np.ndarray[np.complex128_t, ndim=2] zmat, np.ndarray[np.complex128_t, ndim=2] cmat, np.ndarray[np.uint16_t, ndim=2] itermat, double limitsquare, int maxiter):
 	cdef unsigned int i,j
 #~ 	cdef Py_ssize_t i,j
 	cdef double a

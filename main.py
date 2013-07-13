@@ -116,7 +116,7 @@ if __name__=="__main__":
 
 	clipping=args.boundaries
 	complmat=np.zeros(size, dtype=complex)
-	limitmat=np.zeros(size, dtype=int)
+	limitmat=np.zeros(size, dtype=np.uint16)
 	cvalmat=np.zeros(size, dtype=complex)
 	calc_clipping(mandelSurface, complmat, limitmat, clipping, maxiter)
 	draw_iter(mandelSurface, limitmat, maxiter, size)
