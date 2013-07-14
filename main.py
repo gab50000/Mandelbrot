@@ -7,6 +7,7 @@ import numpy as np
 import time
 import argparse
 import nptest
+import pdb
 
 #~ ColorMap=
 ColourPalette = [(241, 233, 191), (248, 201, 95), (255, 170, 0), (204, 108, 0), (153, 87, 0), (106, 52, 3), (66, 30, 15), (25, 7, 26), (25, 7, 26), (9, 1, 47), (4, 4, 73), (0, 7, 100), (12, 44, 138), (24, 82, 177), (57, 125, 209), (134, 181, 229), (211, 236, 248)]
@@ -30,10 +31,10 @@ class imageSection:
 
 def nonlineq(number, c):
 	return number*number+c
-
-def imagcolor(angle):
+#colorrange from 0 to 360
+def imagcolor(angle, colorrange):
 	#~ angle=math.degrees(cmath.phase(number))
-	intensity=255.*(1-angle/180)
+	intensity=255.*(1-angle/colorrange)
 	if angle<0:
 		angle+=360
 	if 0<=angle<60:
@@ -67,13 +68,14 @@ def draw_imag(surface, complmat, (xmax, ymax)):
 			pa[x][y]=imagcolor(complmat[x,y])
 	del pa
 	
-def draw_iter(surface, limitmat, maxlimit, (xmax, ymax)):
+def draw_iter(surface, limitmat, maxlimit, (xmax, ymax), colormap):
 	pa=pygame.PixelArray(surface)
 	for x in xrange(xmax):
 		for y in xrange(ymax):
 			#~ pa[x][y]=pygame.Color(255-int(float(limitmat[x,y])/maxlimit*255),0, int(float(limitmat[x,y])/maxlimit*255))
 			#~ pa[x][y]=pygame.Color(*ColourPalette[limitmat[x,y]%17])
-			pa[x][y]=imagcolor(float(limitmat[x,y])/maxlimit*180)
+			#~ pa[x][y]=imagcolor(float(limitmat[x,y])/maxlimit*180)
+			pa[x,y]=colormap[limitmat[x,y]]
 	del pa
 	
 def calc_converge(surface, limitmat, complmat, cvalmat, maxiter, maxdev):
@@ -110,6 +112,7 @@ if __name__=="__main__":
 	pygame.init()
 	size=args.resolution
 	maxiter=args.maxiter
+	colormap=map(lambda itersteps: imagcolor(float(itersteps)/args.maxiter*180, 180), range(args.maxiter+1))
 	fps=pygame.time.Clock()
 	windowSurface=pygame.display.set_mode(size)
 	mandelSurface=pygame.Surface(size)
@@ -119,7 +122,7 @@ if __name__=="__main__":
 	limitmat=np.zeros(size, dtype=np.uint16)
 	cvalmat=np.zeros(size, dtype=complex)
 	calc_clipping(mandelSurface, complmat, limitmat, clipping, maxiter)
-	draw_iter(mandelSurface, limitmat, maxiter, size)
+	draw_iter(mandelSurface, limitmat, maxiter, size, colormap)
 	ausschnitt=None
 
 	try:
@@ -135,7 +138,7 @@ if __name__=="__main__":
 						clipping=reclip(clipping, ausschnitt.rect, size)
 						ausschnitt=None
 						calc_clipping(mandelSurface, complmat, limitmat, clipping, maxiter)
-						draw_iter(mandelSurface, limitmat, maxiter, size)
+						draw_iter(mandelSurface, limitmat, maxiter, size, colormap)
 				elif event.type ==pl.MOUSEMOTION:
 					if ausschnitt:
 						ausschnitt.resize(event.pos)
