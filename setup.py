@@ -5,7 +5,7 @@ from Cython.Distutils import build_ext
 setup(
     cmdclass = {'build_ext': build_ext},
     ext_modules = [Extension("nptest", ["nptest.pyx"],
-    #~ extra_compile_args=['-fopenmp'],
-    #~ extra_link_args=['-fopenmp'],)]
+    extra_compile_args=['-fopenmp'],
+    extra_link_args=['-fopenmp'],
     )]
 ) 
