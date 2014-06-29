@@ -88,7 +88,8 @@ def calc_converge(surface, limitmat, complmat, cvalmat, maxiter, maxdev):
 		#~ complmat=complmat*complmat+cvalmat
 		#~ limitmat+=abs(complmat)<maxdev
 		#~ i+=1
-	nptest.nonlineq(complmat, cvalmat, limitmat, maxdev*maxdev, maxiter)
+	nptest.nonlineq_2(cvalmat, limitmat, maxdev*maxdev, maxiter)
+	# nptest.nonlineq(complmat, cvalmat, limitmat, maxdev*maxdev, maxiter)
 	print time.time()-start
 
 def calc_clipping(surface, complmat, limitmat, clipping, maxiter):

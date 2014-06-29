@@ -6,7 +6,7 @@ from cython.parallel import prange
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
-def nonlineq(np.complex128_t [:, :] zmat, np.complex128_t [:, :] cmat, np.uint16_t[:, :] itermat, double limitsquare, int maxiter):
+def nonlineq(np.complex128_t [:, ::1] zmat, np.complex128_t [:, ::1] cmat, np.uint16_t[:, ::1] itermat, double limitsquare, int maxiter):
 	# cdef int i,j, iteration
 	cdef Py_ssize_t i,j, iteration
 	cdef double a
@@ -18,6 +18,26 @@ def nonlineq(np.complex128_t [:, :] zmat, np.complex128_t [:, :] cmat, np.uint16
 					a=nonlin_real(zmat[i,j].real, zmat[i,j].imag, cmat[i,j].real)
 					zmat[i,j].imag=nonlin_imag(zmat[i,j].real, zmat[i,j].imag, cmat[i,j].imag)
 					zmat[i,j].real=a
+					itermat[i,j]+=1
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.cdivision(True)
+def nonlineq_2(np.complex128_t [:, ::1] cmat, np.uint16_t[:, ::1] itermat, double limitsquare, int maxiter):
+	# cdef int i,j, iteration
+	cdef Py_ssize_t i,j, iteration
+	cdef double a
+	cdef double z_real
+	cdef double z_imag
+	for i in range(cmat.shape[0]):
+		for j in range(cmat.shape[1]):
+			z_real = 0
+			z_imag = 0
+			for iteration in range(maxiter):
+				if square(z_real, z_imag) < limitsquare:
+					a=nonlin_real(z_real, z_imag, cmat[i,j].real)
+					z_imag=nonlin_imag(z_real, z_imag, cmat[i,j].imag)
+					z_real=a
 					itermat[i,j]+=1
 
 
