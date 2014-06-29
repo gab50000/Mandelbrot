@@ -6,7 +6,7 @@ from cython.parallel import prange
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
-def nonlineq(np.ndarray[np.complex128_t, ndim=2] zmat, np.ndarray[np.complex128_t, ndim=2] cmat, np.ndarray[np.uint16_t, ndim=2] itermat, double limitsquare, int maxiter):
+def nonlineq(np.complex128_t [:, :] zmat, np.complex128_t [:, :] cmat, np.uint16_t[:, :] itermat, double limitsquare, int maxiter):
 	# cdef int i,j, iteration
 	cdef Py_ssize_t i,j, iteration
 	cdef double a
