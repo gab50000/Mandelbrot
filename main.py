@@ -33,7 +33,7 @@ ColourPalette = [
 ]
 
 
-class imageSection:
+class ImageSection:
     def __init__(self, surface, x, y):
         self.anchor = (x, y)
         self.rect = pygame.Rect((x, y), (0, 0))
@@ -202,7 +202,7 @@ if __name__ == "__main__":
             for event in pygame.event.get():
                 if event.type == pl.MOUSEBUTTONUP:
                     if not ausschnitt:
-                        ausschnitt = imageSection(windowSurface, *event.pos)
+                        ausschnitt = ImageSection(windowSurface, *event.pos)
                     else:
                         ausschnitt.resize(*event.pos)
                         # hier clipping resize
