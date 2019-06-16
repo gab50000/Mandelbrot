@@ -6,6 +6,8 @@ import cmath, math
 import numpy as np
 import time
 import argparse
+import pyximport
+pyximport.install()
 import nptest
 import pdb
 
@@ -60,7 +62,6 @@ def nonlineq(number, c):
 
 # colorrange from 0 to 360
 def imagcolor(angle, colorrange):
-    # ~ angle=math.degrees(cmath.phase(number))
     intensity = 255.0 * (1 - angle / colorrange)
     if angle < 0:
         angle += 360
